@@ -26,6 +26,7 @@ export default async function StockLedgerPage({
     variant: { item_code: string; name: string } | null
     location: { name: string } | null
   }
+  type LocationOption = { id: string; name: string }
   let query = supabase
     .from('stock_ledger')
     .select(`
@@ -41,11 +42,12 @@ export default async function StockLedgerPage({
   if (to)       query = query.lte('created_at', to + 'T23:59:59')
   if (type)     query = query.eq('movement_type', type)
 
-  const [{ data: rawLedger }, { data: locations }] = await Promise.all([
+  const [{ data: rawLedger }, { data: locationsData }] = await Promise.all([
     query,
     supabase.from('locations').select('id, name').eq('is_active', true).order('name'),
   ])
   const ledger = (rawLedger ?? []) as LedgerRow[]
+  const locations = (locationsData ?? []) as LocationOption[]
 
   return (
     <div className="flex flex-col flex-1">
@@ -55,7 +57,7 @@ export default async function StockLedgerPage({
         <form className="flex flex-wrap gap-3" method="get">
           <select name="location" defaultValue={location ?? ''} className="px-3 py-2 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50">
             <option value="">All Locations</option>
-            {(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+            {locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
           <select name="type" defaultValue={type ?? ''} className="px-3 py-2 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50">
             <option value="">All Types</option>
