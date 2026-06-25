@@ -5,6 +5,19 @@ import { SettingsForm } from '@/components/admin/SettingsForm'
 
 export const metadata = { title: 'Settings' }
 
+type SettingsRow = {
+  key: string
+  value: unknown
+  description: string | null
+}
+
+const toSettingString = (value: unknown): string => {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (value === null || value === undefined) return ''
+  return JSON.stringify(value)
+}
+
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -13,13 +26,15 @@ export default async function SettingsPage() {
 
   if (me?.role !== 'ADMIN') redirect('/')
 
-  const { data: settings } = await supabase
+  const { data: settingsData } = await supabase
     .from('settings')
     .select('key, value, description')
     .order('key')
 
+  const settings = (settingsData as SettingsRow[] | null) ?? []
+
   const settingsMap = Object.fromEntries(
-    (settings ?? []).map((s) => [s.key, { value: s.value, description: s.description }])
+    settings.map((s) => [s.key, { value: toSettingString(s.value), description: s.description }])
   )
 
   return (

@@ -5,6 +5,21 @@ import { Plus, Package } from 'lucide-react'
 
 export const metadata = { title: 'Products' }
 
+type ProductCategoryFilter = {
+  id: string
+  name: string
+}
+
+type ProductRow = {
+  id: string
+  name: string
+  slug: string
+  is_active: boolean
+  image_urls: string[] | null
+  category: { id?: string; name: string; prefix: string } | null
+  product_variants: Array<{ id: string; item_code: string | null; is_active: boolean; unit: string }> | null
+}
+
 export default async function ProductsPage({
   searchParams,
 }: { searchParams: Promise<{ category?: string }> }) {
@@ -22,10 +37,13 @@ export default async function ProductsPage({
 
   if (category) query = query.eq('category_id', category)
 
-  const [{ data: products }, { data: categories }] = await Promise.all([
+  const [{ data: productsData }, { data: categoriesData }] = await Promise.all([
     query,
     supabase.from('categories').select('id, name').eq('is_active', true).order('name'),
   ])
+
+  const products = (productsData as ProductRow[] | null) ?? []
+  const categories = (categoriesData as ProductCategoryFilter[] | null) ?? []
 
   return (
     <div className="flex flex-col flex-1">
@@ -44,7 +62,7 @@ export default async function ProductsPage({
           <Link href="/products" className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${!category ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border hover:text-foreground'}`}>
             All
           </Link>
-          {(categories ?? []).map((c) => (
+          {categories.map((c) => (
             <Link key={c.id} href={`/products?category=${c.id}`}
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${category === c.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border hover:text-foreground'}`}>
               {c.name}
@@ -53,7 +71,7 @@ export default async function ProductsPage({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(products ?? []).map((p) => {
+          {products.map((p) => {
             const activeVariants = p.product_variants?.filter((v: { is_active: boolean }) => v.is_active).length ?? 0
             const category_data  = p.category as { name: string; prefix: string } | null
             return (
@@ -81,7 +99,7 @@ export default async function ProductsPage({
               </Link>
             )
           })}
-          {(products ?? []).length === 0 && (
+          {products.length === 0 && (
             <div className="col-span-3 text-center py-16 text-muted-foreground text-sm">No products found</div>
           )}
         </div>

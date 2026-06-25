@@ -4,6 +4,10 @@ import { DashboardContent } from '@/components/dashboard/DashboardContent'
 
 export const metadata = { title: 'Dashboard' }
 
+type StockSnapshotRow = {
+  is_low_stock: boolean
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -20,9 +24,10 @@ export default async function DashboardPage() {
     supabase.from('transfers').select('id').eq('status', 'PENDING_APPROVAL'),
     supabase.from('transfers').select('id').eq('status', 'IN_TRANSIT'),
     supabase.from('audit_log').select('*').order('performed_at', { ascending: false }).limit(15),
-    supabase.rpc('get_stock_snapshot').then(({ data }) =>
-      ({ data: data?.filter((r: { is_low_stock: boolean }) => r.is_low_stock) ?? [] })
-    ),
+    supabase.rpc('get_stock_snapshot').then(({ data }) => {
+      const rows = (data as StockSnapshotRow[] | null) ?? []
+      return { data: rows.filter((r) => r.is_low_stock) }
+    }),
   ])
 
   return (
