@@ -1,0 +1,17 @@
+node_modules/
+.next/
+.turbo/
+dist/
+build/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+.vercel
+supabase/.temp/
+apps/mobile/.dart_tool/
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+*.g.dart
+*.freezed.dart

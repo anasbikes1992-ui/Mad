@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Madeenas Textile Dark Theme ── */
+    --background:        14 25 45;     /* #0E192D deep navy */
+    --foreground:        248 250 252;  /* near-white */
+
+    --card:              18 32 58;     /* #12203A navy card */
+    --card-foreground:   248 250 252;
+
+    --popover:           18 32 58;
+    --popover-foreground: 248 250 252;
+
+    --primary:           201 168 76;   /* #C9A84C gold */
+    --primary-foreground: 14 25 45;
+
+    --secondary:         26 44 77;     /* #1A2C4D mid-navy */
+    --secondary-foreground: 248 250 252;
+
+    --muted:             22 38 66;     /* #162442 */
+    --muted-foreground:  148 163 184;  /* slate-400 */
+
+    --accent:            201 168 76;   /* gold */
+    --accent-foreground: 14 25 45;
+
+    --destructive:       239 68 68;    /* red-500 */
+    --destructive-foreground: 248 250 252;
+
+    --border:            30 51 90;     /* #1E335A */
+    --input:             26 44 77;
+    --ring:              201 168 76;
+
+    --radius:            0.5rem;
+
+    /* Status colours */
+    --status-draft:         148 163 184;  /* slate */
+    --status-pending:       251 191 36;   /* amber */
+    --status-approved:      34 197 94;    /* green */
+    --status-in-transit:    59 130 246;   /* blue */
+    --status-received:      16 185 129;   /* emerald */
+    --status-rejected:      239 68 68;    /* red */
+    --status-cancelled:     100 116 139;  /* slate-500 */
+
+    /* Stock level colours */
+    --stock-ok:       34 197 94;
+    --stock-low:      251 191 36;
+    --stock-zero:     239 68 68;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Monospace for item codes and quantities */
+  .font-code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Dense table variant for stock data */
+  .table-dense th,
+  .table-dense td {
+    @apply py-1.5 px-3 text-sm;
+  }
+
+  /* Gold shimmer for loading states */
+  @keyframes gold-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--muted)) 25%,
+      rgb(var(--secondary)) 50%,
+      rgb(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: gold-shimmer 1.5s infinite;
+    border-radius: var(--radius);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgb(var(--background)); }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--primary)); }
+}
