@@ -55,11 +55,11 @@ export async function POST(request: NextRequest) {
 
   // The handle_new_auth_user trigger auto-creates the users row.
   // Update role since the trigger uses raw_user_meta_data
-  await adminClient.from('users').update({ role, full_name }).eq('id', authUser.user.id)
+  await (adminClient.from('users') as any).update({ role, full_name }).eq('id', authUser.user.id)
 
   // Assign locations
   if (location_ids.length > 0) {
-    await adminClient.from('user_locations').insert(
+    await (adminClient.from('user_locations') as any).insert(
       location_ids.map((lid) => ({ user_id: authUser.user.id, location_id: lid }))
     )
   }

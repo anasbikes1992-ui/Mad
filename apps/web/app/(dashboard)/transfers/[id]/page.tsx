@@ -4,6 +4,25 @@ import { Header } from '@/components/layout/Header'
 import { TransferDetail } from '@/components/transfers/TransferDetail'
 import { TransferStatusBadge } from '@/components/transfers/TransferStatusBadge'
 
+type VariantRef = { id: string; item_code: string; name: string; color: string | null; color_hex: string | null; unit: string; cost_price: number; selling_price: number; product: { name: string } | null }
+type LocationRef = { id: string; name: string; type: string; address: string | null }
+type UserRef = { id: string; full_name: string; email?: string }
+type TransferItemFull = { id: string; transfer_id: string; variant_id: string; quantity_requested: number; quantity_dispatched: number | null; quantity_received: number | null; unit: string; variance_notes: string | null; variant: VariantRef | null }
+type TransferFull = {
+  id: string; status: string; approval_required: boolean; approval_notes: string | null
+  from_location_id: string; to_location_id: string
+  requested_by: string | null; approved_by: string | null; dispatched_by: string | null; received_by: string | null
+  requested_at: string; approved_at: string | null; dispatched_at: string | null; received_at: string | null
+  notes: string | null
+  from_location:      LocationRef | null
+  to_location:        LocationRef | null
+  requested_by_user:  UserRef | null
+  approved_by_user:   UserRef | null
+  dispatched_by_user: UserRef | null
+  received_by_user:   UserRef | null
+  transfer_items:     TransferItemFull[]
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   return { title: `Transfer ${id.slice(0, 8).toUpperCase()}` }
@@ -13,7 +32,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: transfer, error } = await supabase
+  const { data: rawTransfer, error } = await supabase
     .from('transfers')
     .select(`
       *,
@@ -34,7 +53,8 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
     .eq('id', id)
     .single()
 
-  if (error || !transfer) notFound()
+  if (error || !rawTransfer) notFound()
+  const transfer = rawTransfer as unknown as TransferFull
 
   const { data: { user } } = await supabase.auth.getUser()
   const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()

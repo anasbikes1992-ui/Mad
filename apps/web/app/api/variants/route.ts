@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
   const active   = searchParams.get('active')
   const limit    = Number(searchParams.get('limit') ?? '200')
 
-  let query = supabase
-    .from('product_variants')
+  let query = (supabase.from('product_variants') as any)
     .select(`
       *,
       product:products(
@@ -50,9 +49,8 @@ export async function GET(request: NextRequest) {
   if (active !== null) query = query.eq('is_active', active === 'true')
 
   if (category) {
-    const { data: products } = await supabase
-      .from('products').select('id').eq('category_id', category)
-    if (products) query = query.in('product_id', products.map((p) => p.id))
+    const { data: products } = await (supabase.from('products') as any).select('id').eq('category_id', category)
+    if (products) query = query.in('product_id', products.map((p: any) => p.id))
   }
 
   const { data, error, count } = await query
@@ -69,8 +67,7 @@ export async function POST(request: NextRequest) {
   const parsed = VariantSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data, error } = await supabase
-    .from('product_variants')
+  const { data, error } = await (supabase.from('product_variants') as any)
     .insert({ ...parsed.data, created_by: user.id })
     .select()
     .single()

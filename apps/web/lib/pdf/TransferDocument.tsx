@@ -118,12 +118,13 @@ export function TransferDocument({ transfer }: Props) {
             transfer.dispatched_at ? ['Dispatched at', format(new Date(transfer.dispatched_at), 'dd MMM yyyy, HH:mm')] : null,
             transfer.received_at   ? ['Received at',   format(new Date(transfer.received_at), 'dd MMM yyyy, HH:mm')] : null,
             transfer.notes ? ['Notes', transfer.notes] : null,
-          ].filter(Boolean).map(([label, value]) => (
+          ].filter(Boolean).map((entry) => { const [label, value] = entry as string[]; return (
             <View key={label} style={S.row}>
               <Text style={S.label}>{label}</Text>
               <Text style={S.value}>{value}</Text>
             </View>
-          ))}
+          )})}
+
         </View>
 
         {/* Items table */}
@@ -136,7 +137,7 @@ export function TransferDocument({ transfer }: Props) {
               ))}
             </View>
             <View style={S.tbody}>
-              {transfer.transfer_items.map((item, i) => (
+              {transfer.transfer_items.map((item: any, i: number) => (
                 <View key={item.id} style={[S.tr, i % 2 === 1 ? S.trAlt : {}]}>
                   <Text style={[S.td, S.tdCode]}>{item.variant.item_code}</Text>
                   <Text style={S.td}>{item.variant.name}</Text>

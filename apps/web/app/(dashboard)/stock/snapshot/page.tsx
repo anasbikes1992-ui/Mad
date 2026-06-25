@@ -4,6 +4,9 @@ import { StockSnapshotTable } from '@/components/stock/StockSnapshotTable'
 
 export const metadata = { title: 'Stock Snapshot' }
 
+type LocationOption = { id: string; name: string; type: string }
+type CategoryOption = { id: string; name: string }
+
 export default async function StockSnapshotPage({
   searchParams,
 }: {
@@ -22,16 +25,19 @@ export default async function StockSnapshotPage({
     }),
   ])
 
+  const locations   = (locationsResult.data ?? []) as LocationOption[]
+  const categories  = (categoriesResult.data ?? []) as CategoryOption[]
+
   return (
     <div className="flex flex-col flex-1">
       <Header title="Stock Snapshot" subtitle="Current balances across all locations" />
       <div className="flex-1 overflow-auto p-6">
         <StockSnapshotTable
           data={snapshotResult.data ?? []}
-          locations={locationsResult.data ?? []}
-          categories={categoriesResult.data ?? []}
-          activeLocation={location}
-          activeCategory={category}
+          locations={locations}
+          categories={categories}
+          {...(location   ? { activeLocation: location }   : {})}
+          {...(category   ? { activeCategory: category }   : {})}
         />
       </div>
     </div>

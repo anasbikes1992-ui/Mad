@@ -8,8 +8,7 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: transfer } = await supabase
-    .from('transfers')
+  const { data: transfer } = await (supabase.from('transfers') as any)
     .select('*, transfer_items(*)')
     .eq('id', id)
     .single()
@@ -25,8 +24,7 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
 
   const newStatus = approvalRequired ? 'PENDING_APPROVAL' : 'APPROVED'
 
-  const { data, error } = await supabase
-    .from('transfers')
+  const { data, error } = await (supabase.from('transfers') as any)
     .update({
       status:           newStatus,
       approval_required: approvalRequired ?? false,
@@ -40,8 +38,7 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
 
   // Notify managers if pending approval
   if (newStatus === 'PENDING_APPROVAL') {
-    const { data: managers } = await supabase
-      .from('users')
+    const { data: managers } = await (supabase.from('users') as any)
       .select('id, full_name, phone')
       .in('role', ['ADMIN', 'MANAGER'])
       .eq('is_active', true)
@@ -49,9 +46,9 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
 
     if (managers && process.env.ENABLE_WHATSAPP_NOTIFICATIONS === 'true') {
       const itemCount = transfer.transfer_items?.length ?? 0
-      const { data: fromLoc } = await supabase.from('locations').select('name').eq('id', transfer.from_location_id).single()
-      const { data: toLoc }   = await supabase.from('locations').select('name').eq('id', transfer.to_location_id).single()
-      const { data: reqUser } = await supabase.from('users').select('full_name').eq('id', user.id).single()
+      const { data: fromLoc } = await (supabase.from('locations') as any).select('name').eq('id', transfer.from_location_id).single()
+      const { data: toLoc }   = await (supabase.from('locations') as any).select('name').eq('id', transfer.to_location_id).single()
+      const { data: reqUser } = await (supabase.from('users') as any).select('full_name').eq('id', user.id).single()
 
       for (const manager of managers) {
         if (manager.phone) {

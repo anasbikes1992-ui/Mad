@@ -1177,31 +1177,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
-export type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row']
-export type InsertDto<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Insert']
-export type UpdateDto<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Update']
-
-export type User = Tables<'users'>
-export type Location = Tables<'locations'>
-export type Category = Tables<'categories'>
-export type Product = Tables<'products'>
-export type ProductVariant = Tables<'product_variants'>
-export type StockLedger = Tables<'stock_ledger'>
-export type StockBalance = Tables<'stock_balances'>
-export type StockIn = Tables<'stock_ins'>
-export type StockInItem = Tables<'stock_in_items'>
-export type Transfer = Tables<'transfers'>
-export type TransferItem = Tables<'transfer_items'>
-export type StockAdjustment = Tables<'stock_adjustments'>
-export type StockAdjustmentItem = Tables<'stock_adjustment_items'>
-export type AuditLog = Tables<'audit_log'>
-
-export type UserRole = User['role']
-export type TransferStatus = Transfer['status']
-export type MovementType = StockLedger['movement_type']
-export type StockUnit = ProductVariant['unit']
-export type LocationType = Location['type']

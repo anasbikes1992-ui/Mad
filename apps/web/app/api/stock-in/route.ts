@@ -58,15 +58,14 @@ export async function POST(request: NextRequest) {
 
   const { items, ...header } = parsed.data
 
-  const { data: stockIn, error: siError } = await supabase
-    .from('stock_ins')
+  const { data: stockIn, error: siError } = await (supabase.from('stock_ins') as any)
     .insert({ ...header, created_by: user.id })
     .select()
     .single()
 
   if (siError) return NextResponse.json({ error: siError.message }, { status: 500 })
 
-  const { error: itemsError } = await supabase.from('stock_in_items').insert(
+  const { error: itemsError } = await (supabase.from('stock_in_items') as any).insert(
     items.map((item) => ({ ...item, stock_in_id: stockIn.id }))
   )
 

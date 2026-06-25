@@ -9,8 +9,7 @@ export async function GET(
   const { id } = await params
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('stock_ins')
+  const { data, error } = await (supabase.from('stock_ins') as any)
     .select(`
       *,
       location:locations(*),
@@ -33,13 +32,12 @@ export async function PATCH(
   const supabase = await createClient()
   const body = await req.json()
 
-  const { data: existing } = await supabase.from('stock_ins').select('status').eq('id', id).single()
+  const { data: existing } = await (supabase.from('stock_ins') as any).select('status').eq('id', id).single()
   if (existing?.status !== 'DRAFT') {
     return NextResponse.json({ error: 'Only DRAFT stock-ins can be edited' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
-    .from('stock_ins')
+  const { data, error } = await (supabase.from('stock_ins') as any)
     .update({ notes: body.notes, supplier_name: body.supplier_name, reference_no: body.reference_no })
     .eq('id', id)
     .select()

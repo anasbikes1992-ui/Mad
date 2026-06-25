@@ -6,8 +6,7 @@ import { revalidatePath } from 'next/cache'
 export async function submitTransfer(transferId: string) {
   const supabase = await createClient()
 
-  const { data: transfer } = await supabase
-    .from('transfers')
+  const { data: transfer } = await (supabase.from('transfers') as any)
     .select('status')
     .eq('id', transferId)
     .single()
@@ -16,8 +15,7 @@ export async function submitTransfer(transferId: string) {
     return { error: 'Transfer is not in DRAFT status' }
   }
 
-  const { error } = await supabase
-    .from('transfers')
+  const { error } = await (supabase.from('transfers') as any)
     .update({ status: 'PENDING_APPROVAL' })
     .eq('id', transferId)
 
@@ -31,8 +29,7 @@ export async function submitTransfer(transferId: string) {
 export async function cancelTransfer(transferId: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from('transfers')
+  const { error } = await (supabase.from('transfers') as any)
     .update({ status: 'CANCELLED' })
     .eq('id', transferId)
     .in('status', ['DRAFT', 'PENDING_APPROVAL', 'APPROVED'])

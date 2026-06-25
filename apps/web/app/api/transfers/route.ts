@@ -64,8 +64,7 @@ export async function POST(request: NextRequest) {
 
   // Validate available stock for each item
   for (const item of items) {
-    const { data: balance } = await supabase
-      .from('stock_balances')
+    const { data: balance } = await (supabase.from('stock_balances') as any)
       .select('quantity_available')
       .eq('variant_id', item.variant_id)
       .eq('location_id', from_location_id)
@@ -73,8 +72,7 @@ export async function POST(request: NextRequest) {
 
     const available = balance?.quantity_available ?? 0
     if (item.quantity_requested > available) {
-      const { data: variant } = await supabase
-        .from('product_variants')
+      const { data: variant } = await (supabase.from('product_variants') as any)
         .select('item_code, name')
         .eq('id', item.variant_id)
         .single()
@@ -85,8 +83,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Create transfer
-  const { data: transfer, error: transferError } = await supabase
-    .from('transfers')
+  const { data: transfer, error: transferError } = await (supabase.from('transfers') as any)
     .insert({ from_location_id, to_location_id, notes, requested_by: user.id })
     .select()
     .single()
@@ -94,7 +91,7 @@ export async function POST(request: NextRequest) {
   if (transferError) return NextResponse.json({ error: transferError.message }, { status: 500 })
 
   // Insert items
-  const { error: itemsError } = await supabase.from('transfer_items').insert(
+  const { error: itemsError } = await (supabase.from('transfer_items') as any).insert(
     items.map((item) => ({ ...item, transfer_id: transfer.id }))
   )
 

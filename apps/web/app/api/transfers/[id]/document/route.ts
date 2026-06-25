@@ -8,8 +8,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: transfer, error } = await supabase
-    .from('transfers')
+  const { data: transfer, error } = await (supabase.from('transfers') as any)
     .select(`
       *,
       from_location:locations!from_location_id(*),
@@ -27,9 +26,10 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
   if (error || !transfer) return NextResponse.json({ error: 'Transfer not found' }, { status: 404 })
 
-  const buffer = await renderToBuffer(React.createElement(TransferDocument, { transfer: transfer as Parameters<typeof TransferDocument>[0]['transfer'] }))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buffer = await renderToBuffer(React.createElement(TransferDocument, { transfer }) as any)
 
-  return new NextResponse(buffer, {
+  return new NextResponse(buffer as unknown as BodyInit, {
     headers: {
       'Content-Type':        'application/pdf',
       'Content-Disposition': `attachment; filename="transfer-${id.slice(0,8).toUpperCase()}.pdf"`,

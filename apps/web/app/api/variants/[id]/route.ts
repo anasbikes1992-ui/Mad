@@ -33,8 +33,7 @@ export async function PATCH(
   }
 
   const body = await req.json()
-  const { data, error } = await supabase
-    .from('product_variants')
+  const { data, error } = await (supabase.from('product_variants') as any)
     .update({
       name: body.name, color: body.color, color_hex: body.color_hex,
       unit: body.unit, width_inches: body.width_inches, gsm: body.gsm,
@@ -73,7 +72,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Cannot delete variant with stock on hand' }, { status: 400 })
   }
 
-  const { error } = await supabase.from('product_variants').update({ is_active: false }).eq('id', id)
+  const { error } = await (supabase.from('product_variants') as any).update({ is_active: false }).eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }

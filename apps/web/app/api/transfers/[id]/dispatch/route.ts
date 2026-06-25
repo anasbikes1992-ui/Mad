@@ -19,8 +19,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const parsed = DispatchSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data: transfer } = await supabase
-    .from('transfers')
+  const { data: transfer } = await (supabase.from('transfers') as any)
     .select('status, from_location_id')
     .eq('id', id)
     .single()
@@ -32,12 +31,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // Verify user has access to source location
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', authUser?.id ?? '').single()
+  const { data: currentUserData } = await (supabase.from('users') as any).select('role').eq('id', authUser?.id ?? '').single()
   const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (currentUser?.role === 'STORE_KEEPER') {
-    const { data: userLocData } = await supabase
-      .from('user_locations')
+    const { data: userLocData } = await (supabase.from('user_locations') as any)
       .select('location_id')
       .eq('user_id', user.id)
       .eq('location_id', transfer.from_location_id)
@@ -48,8 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // Update quantities dispatched on transfer items
   for (const item of parsed.data.items) {
-    await supabase
-      .from('transfer_items')
+    await (supabase.from('transfer_items') as any)
       .update({ quantity_dispatched: item.quantity_dispatched })
       .eq('id', item.transfer_item_id)
       .eq('transfer_id', id)
@@ -64,6 +61,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const { data: updated } = await supabase.from('transfers').select('*').eq('id', id).single()
+  const { data: updated } = await (supabase.from('transfers') as any).select('*').eq('id', id).single()
   return NextResponse.json({ data: updated })
 }

@@ -23,7 +23,7 @@ export async function PATCH(
   if (body.is_active !== undefined) update.is_active = body.is_active
 
   if (Object.keys(update).length > 0) {
-    const { error } = await supabase.from('users').update(update).eq('id', id)
+    const { error } = await (supabase.from('users') as any).update(update).eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
@@ -31,7 +31,7 @@ export async function PATCH(
     await supabase.from('user_locations').delete().eq('user_id', id)
     if (body.location_ids.length > 0) {
       const rows = body.location_ids.map((lid) => ({ user_id: id, location_id: lid }))
-      const { error } = await supabase.from('user_locations').insert(rows)
+      const { error } = await (supabase.from('user_locations') as any).insert(rows)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     }
   }

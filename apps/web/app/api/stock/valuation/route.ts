@@ -6,8 +6,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const locationId = searchParams.get('location')
 
-  let query = supabase
-    .from('stock_balances')
+  let query = (supabase.from('stock_balances') as any)
     .select(`
       variant_id, location_id, quantity_on_hand,
       variant:product_variants(
@@ -27,16 +26,16 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   // Compute total value per row and aggregate
-  const rows = (data ?? []).map((row) => ({
+  const rows = (data ?? []).map((row: any) => ({
     ...row,
     total_value: row.quantity_on_hand * ((row.variant as { cost_price: number })?.cost_price ?? 0),
   }))
 
-  const grandTotal = rows.reduce((sum, r) => sum + r.total_value, 0)
+  const grandTotal = rows.reduce((sum: number, r: any) => sum + r.total_value, 0)
 
   // Group by category
   const byCategory: Record<string, { category: string; total: number; items: typeof rows }> = {}
-  rows.forEach((row) => {
+  rows.forEach((row: any) => {
     const cat = (row.variant as { product?: { category?: { name: string } } })?.product?.category?.name ?? 'Uncategorised'
     if (!byCategory[cat]) byCategory[cat] = { category: cat, total: 0, items: [] }
     byCategory[cat]!.total += row.total_value

@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest) {
     updated_at: new Date().toISOString(),
   }))
 
-  const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' })
+  const { error } = await (supabase.from('settings') as any).upsert(updates, { onConflict: 'key' })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const { data } = await supabase.from('settings').select('*').order('key')

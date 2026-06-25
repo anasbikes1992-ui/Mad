@@ -21,8 +21,7 @@ export function StockMovementChart() {
       const supabase = createClient()
       const from = subDays(new Date(), 30).toISOString()
 
-      const { data: ledger } = await supabase
-        .from('stock_ledger')
+      const { data: ledger } = await (supabase.from('stock_ledger') as any)
         .select('movement_type, quantity, created_at')
         .gte('created_at', from)
 
@@ -30,12 +29,12 @@ export function StockMovementChart() {
 
       const chartData: DayData[] = days.map((day) => {
         const dayStr = format(day, 'yyyy-MM-dd')
-        const dayEntries = (ledger ?? []).filter((e) => e.created_at.startsWith(dayStr))
+        const dayEntries = (ledger ?? []).filter((e: any) => e.created_at.startsWith(dayStr))
         return {
           date: format(day, 'dd MMM'),
-          'Stock In':     dayEntries.filter((e) => e.movement_type === 'STOCK_IN').reduce((s, e) => s + e.quantity, 0),
-          'Transfer In':  dayEntries.filter((e) => e.movement_type === 'TRANSFER_IN').reduce((s, e) => s + e.quantity, 0),
-          'Transfer Out': dayEntries.filter((e) => e.movement_type === 'TRANSFER_OUT').reduce((s, e) => s + e.quantity, 0),
+          'Stock In':     dayEntries.filter((e: any) => e.movement_type === 'STOCK_IN').reduce((s: number, e: any) => s + e.quantity, 0),
+          'Transfer In':  dayEntries.filter((e: any) => e.movement_type === 'TRANSFER_IN').reduce((s: number, e: any) => s + e.quantity, 0),
+          'Transfer Out': dayEntries.filter((e: any) => e.movement_type === 'TRANSFER_OUT').reduce((s: number, e: any) => s + e.quantity, 0),
         }
       })
 

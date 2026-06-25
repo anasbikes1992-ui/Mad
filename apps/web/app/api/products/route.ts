@@ -45,8 +45,7 @@ export async function POST(request: NextRequest) {
   const parsed = ProductSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data, error } = await supabase
-    .from('products')
+  const { data, error } = await (supabase.from('products') as any)
     .insert({ ...parsed.data, created_by: user.id })
     .select()
     .single()

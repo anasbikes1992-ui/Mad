@@ -11,8 +11,7 @@ export async function GET(
   const { id } = await params
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('stock_ins')
+  const { data, error } = await (supabase.from('stock_ins') as any)
     .select(`
       *,
       location:locations(name),
@@ -42,22 +41,21 @@ export async function GET(
   const createdBy  = (data.created_by_user  as { full_name: string } | null)?.full_name ?? ''
   const confirmedBy = (data.confirmed_by_user as { full_name: string } | null)?.full_name ?? null
 
-  const buffer = await renderToBuffer(
-    createElement(GRNDocument, {
-      id:            data.id,
-      reference_no:  data.reference_no,
-      supplier_name: data.supplier_name,
-      received_date: data.received_date,
-      location_name: location?.name ?? '',
-      notes:         data.notes,
-      items,
-      created_by:    createdBy,
-      confirmed_by:  confirmedBy,
-    })
-  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buffer = await renderToBuffer(createElement(GRNDocument, {
+    id:            data.id,
+    reference_no:  data.reference_no,
+    supplier_name: data.supplier_name,
+    received_date: data.received_date,
+    location_name: location?.name ?? '',
+    notes:         data.notes,
+    items,
+    created_by:    createdBy,
+    confirmed_by:  confirmedBy,
+  }) as any)
 
   const refNo = data.reference_no ?? `GRN-${id.slice(0, 8).toUpperCase()}`
-  return new NextResponse(buffer, {
+  return new NextResponse(buffer as unknown as BodyInit, {
     headers: {
       'Content-Type':        'application/pdf',
       'Content-Disposition': `attachment; filename="${refNo}.pdf"`,

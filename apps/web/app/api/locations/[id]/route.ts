@@ -16,8 +16,7 @@ export async function PATCH(
   }
 
   const body = await req.json()
-  const { data, error } = await supabase
-    .from('locations')
+  const { data, error } = await (supabase.from('locations') as any)
     .update({ name: body.name, code: body.code, type: body.type, address: body.address, phone: body.phone, manager_id: body.manager_id, is_active: body.is_active })
     .eq('id', id)
     .select()

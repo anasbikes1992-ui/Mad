@@ -9,8 +9,7 @@ export async function GET(request: NextRequest) {
   const location = searchParams.get('location')
   const limit    = Number(searchParams.get('limit') ?? '20')
 
-  let query = supabase
-    .from('product_variants')
+  let query = (supabase.from('product_variants') as any)
     .select(`
       id, item_code, name, color, color_hex, unit, cost_price, selling_price, barcode,
       product:products(id, name, category:categories(id, name)),
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // Filter stock balances to specific location if provided
   const result = location
-    ? data?.map((v) => ({
+    ? data?.map((v: any) => ({
         ...v,
         stock_balances: v.stock_balances.filter(
           (b: { location_id: string }) => b.location_id === location

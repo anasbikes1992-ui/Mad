@@ -20,8 +20,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const parsed = ReceiveSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data: transfer } = await supabase
-    .from('transfers')
+  const { data: transfer } = await (supabase.from('transfers') as any)
     .select('status, to_location_id')
     .eq('id', id)
     .single()
@@ -33,8 +32,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // Update received quantities and variance notes
   for (const item of parsed.data.items) {
-    await supabase
-      .from('transfer_items')
+    await (supabase.from('transfer_items') as any)
       .update({
         quantity_received: item.quantity_received,
         variance_notes:    item.variance_notes ?? null,
@@ -52,6 +50,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const { data: updated } = await supabase.from('transfers').select('*').eq('id', id).single()
+  const { data: updated } = await (supabase.from('transfers') as any).select('*').eq('id', id).single()
   return NextResponse.json({ data: updated })
 }

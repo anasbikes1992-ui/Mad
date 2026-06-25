@@ -7,7 +7,7 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user.id).single() as any
   if (!currentUser || !['ADMIN','MANAGER'].includes(currentUser.role)) {
     return NextResponse.json({ error: 'Only MANAGER or ADMIN can confirm stock-in' }, { status: 403 })
   }

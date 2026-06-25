@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const supabase = await createClient()
 
   const body = await request.json()
-  const { data, error } = await supabase.from('products').update(body).eq('id', id).select().single()
+  const { data, error } = await (supabase.from('products') as any).update(body).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ data })
 }
@@ -41,7 +41,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Cannot delete: product has variants. Deactivate instead.' }, { status: 400 })
   }
 
-  const { error } = await supabase.from('products').update({ is_active: false }).eq('id', id)
+  const { error } = await (supabase.from('products') as any).update({ is_active: false }).eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }

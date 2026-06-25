@@ -5,8 +5,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const { id } = await params
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('transfers')
+  const { data, error } = await (supabase.from('transfers') as any)
     .select(`
       *,
       from_location:locations!from_location_id(id, name, type, address),
@@ -34,15 +33,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: transfer } = await supabase.from('transfers').select('status').eq('id', id).single()
+  const { data: transfer } = await (supabase.from('transfers') as any).select('status').eq('id', id).single()
   if (!transfer) return NextResponse.json({ error: 'Transfer not found' }, { status: 404 })
   if (transfer.status !== 'DRAFT') return NextResponse.json({ error: 'Only DRAFT transfers can be edited' }, { status: 400 })
 
   const body = await request.json()
   const { notes } = body
 
-  const { data, error } = await supabase
-    .from('transfers')
+  const { data, error } = await (supabase.from('transfers') as any)
     .update({ notes })
     .eq('id', id)
     .select()
