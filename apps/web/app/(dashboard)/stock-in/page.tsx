@@ -9,7 +9,14 @@ export const metadata = { title: 'Stock In' }
 export default async function StockInPage() {
   const supabase = await createClient()
 
-  const { data: stockIns } = await supabase
+  type StockInRow = {
+    id: string; status: string; supplier_name: string
+    reference_no: string | null; received_date: string
+    location: { name: string } | null
+    confirmed_by_user: { full_name: string } | null
+    stock_in_items: Array<{ quantity: number; cost_price: number }> | null
+  }
+  const { data: rawStockIns } = await supabase
     .from('stock_ins')
     .select(`
       id, status, supplier_name, reference_no, received_date,
@@ -19,6 +26,7 @@ export default async function StockInPage() {
     `)
     .order('received_date', { ascending: false })
     .limit(100)
+  const stockIns = (rawStockIns ?? []) as StockInRow[]
 
   return (
     <div className="flex flex-col flex-1">
@@ -59,7 +67,7 @@ export default async function StockInPage() {
                     <td className="px-4 py-2.5 text-foreground">{si.supplier_name}</td>
                     <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">{si.reference_no ?? '—'}</td>
                     <td className="px-4 py-2.5 text-muted-foreground text-xs">
-                      {(si.location as { name: string } | null)?.name ?? '—'}
+                      {si.location?.name ?? '—'}
                     </td>
                     <td className="px-4 py-2.5 text-muted-foreground text-center">{si.stock_in_items?.length ?? 0}</td>
                     <td className="px-4 py-2.5 font-mono text-foreground">{totalValue.toLocaleString()}</td>

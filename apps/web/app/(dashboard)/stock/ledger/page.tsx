@@ -19,6 +19,13 @@ export default async function StockLedgerPage({
   const { location, from, to, type } = await searchParams
   const supabase = await createClient()
 
+  type LedgerRow = {
+    id: string; movement_type: string; quantity_change: number
+    quantity_after: number; reference_type: string | null
+    reference_id: string | null; notes: string | null; created_at: string
+    variant: { item_code: string; name: string } | null
+    location: { name: string } | null
+  }
   let query = supabase
     .from('stock_ledger')
     .select(`
@@ -34,10 +41,11 @@ export default async function StockLedgerPage({
   if (to)       query = query.lte('created_at', to + 'T23:59:59')
   if (type)     query = query.eq('movement_type', type)
 
-  const [{ data: ledger }, { data: locations }] = await Promise.all([
+  const [{ data: rawLedger }, { data: locations }] = await Promise.all([
     query,
     supabase.from('locations').select('id, name').eq('is_active', true).order('name'),
   ])
+  const ledger = (rawLedger ?? []) as LedgerRow[]
 
   return (
     <div className="flex flex-col flex-1">
@@ -72,9 +80,9 @@ export default async function StockLedgerPage({
               </tr>
             </thead>
             <tbody>
-              {(ledger ?? []).map((row, i) => {
-                const v = row.variant as { item_code: string; name: string } | null
-                const l = row.location as { name: string } | null
+              {ledger.map((row, i) => {
+                const v = row.variant
+                const l = row.location
                 const colorClass = MOVEMENT_COLORS[row.movement_type] ?? 'text-foreground'
                 return (
                   <tr key={row.id} className={`border-b border-border/50 ${i % 2 === 1 ? 'bg-secondary/20' : ''}`}>
@@ -93,7 +101,7 @@ export default async function StockLedgerPage({
                   </tr>
                 )
               })}
-              {(ledger ?? []).length === 0 && (
+              {ledger.length === 0 && (
                 <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No ledger entries found</td></tr>
               )}
             </tbody>

@@ -8,13 +8,15 @@ export default async function NewTransferPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   let locationsQuery = supabase.from('locations').select('id, name, type').eq('is_active', true).order('name')
 
   // Store keepers only see their assigned locations
   if (currentUser?.role === 'STORE_KEEPER') {
-    const { data: userLocs } = await supabase.from('user_locations').select('location_id').eq('user_id', user?.id ?? '')
+    const { data: userLocsData } = await supabase.from('user_locations').select('location_id').eq('user_id', user?.id ?? '')
+    const userLocs = userLocsData as Array<{ location_id: string }> | null
     const locationIds = userLocs?.map((ul) => ul.location_id) ?? []
     locationsQuery = locationsQuery.in('id', locationIds) as typeof locationsQuery
   }

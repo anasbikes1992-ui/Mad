@@ -29,7 +29,16 @@ export default async function TransfersPage({
   if (status)   query = query.eq('status', status)
   if (location) query = query.or(`from_location_id.eq.${location},to_location_id.eq.${location}`)
 
-  const { data: transfers } = await query
+  type TransferRow = {
+    id: string; status: string; approval_required: boolean
+    requested_at: string; notes: string | null
+    from_location: { id: string; name: string; type: string } | null
+    to_location:   { id: string; name: string; type: string } | null
+    requested_by_user: { full_name: string } | null
+    transfer_items: Array<{ id: string; quantity_requested: number; unit: string; variant: { cost_price: number } | null }>
+  }
+  const { data: rawTransfers } = await query
+  const transfers = (rawTransfers ?? []) as TransferRow[]
 
   return (
     <div className="flex flex-col flex-1">

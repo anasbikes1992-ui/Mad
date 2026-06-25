@@ -7,7 +7,8 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
   if (!currentUser || !['ADMIN','MANAGER'].includes(currentUser.role)) {
     return NextResponse.json({ error: 'Only MANAGER or ADMIN can confirm adjustments' }, { status: 403 })
   }

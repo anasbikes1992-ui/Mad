@@ -19,7 +19,7 @@ AS $$
     COUNT(DISTINCT pv.id)                          AS variant_count,
     COALESCE(SUM(sb.quantity_on_hand), 0)          AS total_quantity,
     COALESCE(SUM(sb.quantity_on_hand * pv.cost_price), 0) AS total_cost_value,
-    COALESCE(SUM(sb.quantity_on_hand * COALESCE(pv.sell_price, pv.cost_price)), 0) AS total_sell_value
+    COALESCE(SUM(sb.quantity_on_hand * COALESCE(pv.selling_price, pv.cost_price)), 0) AS total_sell_value
   FROM categories c
   JOIN products p    ON p.category_id = c.id
   JOIN product_variants pv ON pv.product_id = p.id AND pv.is_active = true
@@ -53,12 +53,12 @@ AS $$
     sb.location_id    AS location_id,
     l.name            AS location_name,
     sb.quantity_available,
-    sb.min_stock_alert
+    pv.min_stock_alert
   FROM stock_balances sb
   JOIN product_variants pv ON pv.id = sb.variant_id
   JOIN locations l          ON l.id  = sb.location_id
-  WHERE sb.quantity_available <= sb.min_stock_alert
-    AND sb.min_stock_alert > 0
+  WHERE sb.quantity_available <= pv.min_stock_alert
+    AND pv.min_stock_alert > 0
     AND pv.is_active = true
     AND l.is_active  = true
   ORDER BY sb.quantity_available ASC, pv.name ASC;

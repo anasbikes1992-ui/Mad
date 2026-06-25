@@ -6,10 +6,23 @@ import { format } from 'date-fns'
 
 export const metadata = { title: 'Adjustments' }
 
+type AdjRow = {
+  id: string
+  type: string
+  status: string
+  reason: string
+  notes: string | null
+  created_at: string
+  variant: { item_code: string; name: string } | null
+  location: { name: string } | null
+  created_by_user: { full_name: string } | null
+  confirmed_by_user: { full_name: string } | null
+}
+
 export default async function AdjustmentsPage() {
   const supabase = await createClient()
 
-  const { data: adjustments } = await supabase
+  const { data: rawAdj } = await supabase
     .from('stock_adjustments')
     .select(`
       id, type, status, reason, notes, created_at,
@@ -20,6 +33,7 @@ export default async function AdjustmentsPage() {
     `)
     .order('created_at', { ascending: false })
     .limit(100)
+  const adjustments = (rawAdj ?? []) as AdjRow[]
 
   return (
     <div className="flex flex-col flex-1">
@@ -48,10 +62,10 @@ export default async function AdjustmentsPage() {
               </tr>
             </thead>
             <tbody>
-              {(adjustments ?? []).map((adj, i) => {
-                const v = adj.variant as { item_code: string; name: string } | null
-                const l = adj.location as { name: string } | null
-                const u = adj.created_by_user as { full_name: string } | null
+              {adjustments.map((adj, i) => {
+                const v = adj.variant
+                const l = adj.location
+                const u = adj.created_by_user
                 return (
                   <tr key={adj.id} className={`border-b border-border/50 ${i % 2 === 1 ? 'bg-secondary/20' : ''}`}>
                     <td className="px-4 py-2.5 text-xs text-muted-foreground">
@@ -84,7 +98,7 @@ export default async function AdjustmentsPage() {
                   </tr>
                 )
               })}
-              {(adjustments ?? []).length === 0 && (
+              {adjustments.length === 0 && (
                 <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No adjustments found</td></tr>
               )}
             </tbody>

@@ -11,9 +11,10 @@ const InviteSchema = z.object({
 
 export async function GET() {
   const supabase = await createClient()
-  const { data: currentUser } = await supabase.from('users').select('role').eq(
+  const { data: currentUserData } = await supabase.from('users').select('role').eq(
     'id', (await supabase.auth.getUser()).data.user?.id ?? ''
   ).single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (!currentUser || currentUser.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
@@ -35,7 +36,8 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
   if (currentUser?.role !== 'ADMIN') return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
 
   const body = await request.json()

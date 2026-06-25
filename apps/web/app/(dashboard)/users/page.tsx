@@ -8,7 +8,8 @@ export const metadata = { title: 'Users' }
 export default async function UsersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: me } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: meData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const me = meData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (me?.role !== 'ADMIN') redirect('/')
 

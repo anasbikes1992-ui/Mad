@@ -37,11 +37,13 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
   if (error || !transfer) notFound()
 
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   let userLocationIds: string[] = []
   if (currentUser?.role === 'STORE_KEEPER') {
-    const { data: ul } = await supabase.from('user_locations').select('location_id').eq('user_id', user?.id ?? '')
+    const { data: ulData } = await supabase.from('user_locations').select('location_id').eq('user_id', user?.id ?? '')
+    const ul = ulData as Array<{ location_id: string }> | null
     userLocationIds = ul?.map((x) => x.location_id) ?? []
   }
 

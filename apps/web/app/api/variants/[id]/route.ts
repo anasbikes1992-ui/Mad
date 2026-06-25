@@ -25,7 +25,8 @@ export async function PATCH(
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: me } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: meData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const me = meData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (!['ADMIN','MANAGER'].includes(me?.role ?? '')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -36,8 +37,8 @@ export async function PATCH(
     .from('product_variants')
     .update({
       name: body.name, color: body.color, color_hex: body.color_hex,
-      unit: body.unit, width_cm: body.width_cm, weight_gsm: body.weight_gsm,
-      cost_price: body.cost_price, sell_price: body.sell_price,
+      unit: body.unit, width_inches: body.width_inches, gsm: body.gsm,
+      cost_price: body.cost_price, selling_price: body.selling_price,
       min_stock_alert: body.min_stock_alert, barcode: body.barcode, is_active: body.is_active,
     })
     .eq('id', id)
@@ -55,7 +56,8 @@ export async function DELETE(
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: me } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: meData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const me = meData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (me?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Admin only' }, { status: 403 })

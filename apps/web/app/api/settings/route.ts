@@ -13,7 +13,8 @@ export async function PATCH(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', user.id).single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
   if (currentUser?.role !== 'ADMIN') return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
 
   const body: Record<string, unknown> = await request.json()

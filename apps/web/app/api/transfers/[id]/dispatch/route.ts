@@ -32,15 +32,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // Verify user has access to source location
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  const { data: currentUser } = await supabase.from('users').select('role').eq('id', authUser?.id ?? '').single()
+  const { data: currentUserData } = await supabase.from('users').select('role').eq('id', authUser?.id ?? '').single()
+  const currentUser = currentUserData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (currentUser?.role === 'STORE_KEEPER') {
-    const { data: userLoc } = await supabase
+    const { data: userLocData } = await supabase
       .from('user_locations')
       .select('location_id')
       .eq('user_id', user.id)
       .eq('location_id', transfer.from_location_id)
       .single()
+    const userLoc = userLocData as { location_id: string } | null
     if (!userLoc) return NextResponse.json({ error: 'Not assigned to source location' }, { status: 403 })
   }
 

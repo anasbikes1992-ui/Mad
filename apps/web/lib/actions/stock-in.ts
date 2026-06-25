@@ -6,7 +6,8 @@ import { revalidatePath } from 'next/cache'
 export async function confirmStockIn(stockInId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: me } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const { data: meData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
+  const me = meData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
   if (!['ADMIN', 'MANAGER'].includes(me?.role ?? '')) {
     return { error: 'Only managers can confirm stock-in' }
