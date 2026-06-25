@@ -15,7 +15,8 @@ export default async function StockSnapshotPage({
   const [locationsResult, categoriesResult, snapshotResult] = await Promise.all([
     supabase.from('locations').select('id, name, type').eq('is_active', true).order('name'),
     supabase.from('categories').select('id, name').eq('is_active', true).order('name'),
-    supabase.rpc('get_stock_snapshot', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.rpc as any)('get_stock_snapshot', {
       p_location_ids: location ? [location] : null,
       p_category_ids: category ? [category] : null,
     }),

@@ -56,7 +56,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   // Call DB function to write ledger entries and flip status
-  const { error } = await supabase.rpc('dispatch_transfer', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('dispatch_transfer', {
     p_transfer_id: id,
     p_user_id:     user.id,
   })

@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const locationIds = searchParams.getAll('location')
   const categoryIds = searchParams.getAll('category')
 
-  const { data, error } = await supabase.rpc('get_stock_snapshot', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)('get_stock_snapshot', {
     p_location_ids: locationIds.length > 0 ? locationIds : null,
     p_category_ids: categoryIds.length > 0 ? categoryIds : null,
   })

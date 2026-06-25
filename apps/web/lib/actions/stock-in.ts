@@ -13,7 +13,8 @@ export async function confirmStockIn(stockInId: string) {
     return { error: 'Only managers can confirm stock-in' }
   }
 
-  const { error } = await supabase.rpc('confirm_stock_in', { p_stock_in_id: stockInId })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('confirm_stock_in', { p_stock_in_id: stockInId })
   if (error) return { error: error.message }
 
   revalidatePath('/stock-in')

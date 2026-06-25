@@ -13,7 +13,8 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
     return NextResponse.json({ error: 'Only MANAGER or ADMIN can confirm adjustments' }, { status: 403 })
   }
 
-  const { error } = await supabase.rpc('confirm_adjustment', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('confirm_adjustment', {
     p_adjustment_id: id,
     p_user_id:       user.id,
   })

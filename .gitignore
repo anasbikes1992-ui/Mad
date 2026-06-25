@@ -15,3 +15,5 @@ apps/mobile/.flutter-plugins
 apps/mobile/.flutter-plugins-dependencies
 *.g.dart
 *.freezed.dart
+
+.vercel

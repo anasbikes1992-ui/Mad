@@ -44,7 +44,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   // Call DB function to write TRANSFER_IN ledger entries
-  const { error } = await supabase.rpc('receive_transfer', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('receive_transfer', {
     p_transfer_id: id,
     p_user_id:     user.id,
   })

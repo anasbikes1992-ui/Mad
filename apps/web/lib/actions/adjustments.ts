@@ -13,7 +13,8 @@ export async function confirmAdjustment(adjustmentId: string) {
     return { error: 'Only managers can confirm adjustments' }
   }
 
-  const { error } = await supabase.rpc('confirm_adjustment', { p_adjustment_id: adjustmentId })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('confirm_adjustment', { p_adjustment_id: adjustmentId })
   if (error) return { error: error.message }
 
   revalidatePath('/adjustments')

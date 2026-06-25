@@ -18,7 +18,8 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
   if (transfer.status !== 'DRAFT') return NextResponse.json({ error: 'Only DRAFT transfers can be submitted' }, { status: 400 })
 
   // Check if approval is required via DB function
-  const { data: approvalRequired } = await supabase.rpc('check_transfer_approval_required', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: approvalRequired } = await (supabase.rpc as any)('check_transfer_approval_required', {
     p_transfer_id: id,
   })
 

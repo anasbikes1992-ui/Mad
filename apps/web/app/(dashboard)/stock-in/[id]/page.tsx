@@ -6,6 +6,25 @@ import Link from 'next/link'
 import { FileText, CheckCircle } from 'lucide-react'
 import { confirmStockIn } from '@/lib/actions/stock-in'
 
+type StockInDetail = {
+  id: string
+  status: string
+  supplier_name: string
+  reference_no: string | null
+  received_date: string
+  notes: string | null
+  location: { name: string } | null
+  created_by_user: { full_name: string; email?: string } | null
+  confirmed_by_user: { full_name: string } | null
+  stock_in_items: Array<{
+    id: string
+    quantity: number
+    cost_price: number
+    unit: string
+    variant: { item_code: string; name: string; color: string | null } | null
+  }> | null
+}
+
 export default async function StockInDetailPage({
   params,
 }: { params: Promise<{ id: string }> }) {
@@ -15,7 +34,7 @@ export default async function StockInDetailPage({
   const { data: meData } = await supabase.from('users').select('role').eq('id', user?.id ?? '').single()
   const me = meData as { role: 'ADMIN' | 'MANAGER' | 'STORE_KEEPER' | 'VIEWER' } | null
 
-  const { data, error } = await supabase
+  const { data: rawData, error } = await supabase
     .from('stock_ins')
     .select(`
       *,
@@ -26,6 +45,8 @@ export default async function StockInDetailPage({
     `)
     .eq('id', id)
     .single()
+
+  const data = rawData as StockInDetail | null
 
   if (error || !data) notFound()
 
@@ -50,7 +71,10 @@ export default async function StockInDetailPage({
               <FileText size={14} /> Download GRN
             </a>
             {canConfirm && (
-              <form action={confirmStockIn.bind(null, id)}>
+              <form action={async () => {
+                'use server'
+                await confirmStockIn(id)
+              }}>
                 <button type="submit" className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/15 border border-green-500/30 rounded-lg text-sm text-green-400 hover:bg-green-500/20 transition-colors">
                   <CheckCircle size={14} /> Confirm Stock In
                 </button>
